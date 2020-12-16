@@ -1,0 +1,38 @@
+.sidebar {
+    height: 100%;
+    width: 220px;
+    background: #031c31; 
+
+    .sidebar-head {
+        color: #fff;
+        background: #001529;
+        font-weight: bold;
+        font-size: 18px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        padding-left: 40px;
+    }
+
+    .menu-item {
+        color: rgba(255,255,255,.7);
+        height: 40px;
+        font-size: 14px;
+        padding-left: 40px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        text-decoration: none;
+
+        &:hover {
+            transition: color .5s;
+            color: #fff;
+        }
+
+        &.active {
+            transition: background .5s;
+            background: #198fff;
+            color: #fff;
+        }
+    }
+}
