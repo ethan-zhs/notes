@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { fromJS } from 'immutable'
 import classNames from 'classnames'
-import { ipcRenderer } from 'electron'
 
 const styles = require('./index.less')
 
@@ -53,7 +52,7 @@ class Home extends React.Component<any, any> {
                         ))}
                     </div>
 
-                    <div className={styles['setting-btn']} onClick={this.openSettingsDialog}>
+                    <div className={styles['setting-btn']}>
                         <svg width="100%" height="100%">
                             <circle cx="3" cy="10" r="1.8" className={styles['setting-svg-fill']} />
                             <circle cx="10" cy="10" r="1.8" className={styles['setting-svg-fill']} />
@@ -76,7 +75,7 @@ class Home extends React.Component<any, any> {
                                     onMouseLeave={() => this.changeHoverNote('')}
                                     onMouseEnter={() => this.changeHoverNote(item.id)}
                                 >
-                                    <div className={styles['note-title']}>▫ {item.name}1</div>
+                                    <div className={styles['note-title']}>▫ {item.name}</div>
 
                                     {hoverNote === item.id && (
                                         <svg
@@ -107,10 +106,6 @@ class Home extends React.Component<any, any> {
                 </div>
             </div>
         )
-    }
-
-    openSettingsDialog = () => {
-        ipcRenderer.send('open-settings-dialog')
     }
 
     handleChangeTaskList = (type: string) => {

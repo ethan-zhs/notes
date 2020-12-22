@@ -2,71 +2,30 @@ import { BrowserWindow, ipcMain } from 'electron'
 import url from 'url'
 import path from 'path'
 
-const html = url.format({
-    protocol: 'file:',
-    pathname: path.join(__dirname, '../statics/window.html'),
-    slashes: true
-})
-
-const draghtml = url.format({
-    protocol: 'file:',
-    pathname: path.join(__dirname, '../statics/window_drag.html'),
-    slashes: true
-})
-
-const transhtml = url.format({
-    protocol: 'file:',
-    pathname: path.join(__dirname, '../statics/window_trans.html'),
-    slashes: true
-})
+const RENDERER_URL =
+    process.env.NODE_ENV === 'production'
+        ? url.format({
+              pathname: path.join(__dirname, '..', 'renderer/index.html/#setings'),
+              protocol: 'file:',
+              slashes: true
+          })
+        : 'http://localhost:1234/#settings'
 
 function createNoBarWindow() {
-    ipcMain.on('create-nobar-window', () => {
-        let win: any = new BrowserWindow({
-            width: 800,
-            height: 600,
-            frame: false
-        })
-        win.on('close', () => {
-            win = null
-        })
-        win.loadURL(html)
-    })
-}
+    console.log(process.env.NODE_ENV)
 
-function createWindowDrag() {
-    ipcMain.on('create-nobar-window-drag', () => {
+    ipcMain.on('open-settings-dialog', () => {
         let win: any = new BrowserWindow({
             width: 800,
-            height: 600,
-            frame: false,
-            titleBarStyle: 'hidden'
+            height: 600
         })
         win.on('close', () => {
             win = null
         })
-        win.loadURL(draghtml)
-    })
-}
-
-function createWindowTrans() {
-    ipcMain.on('create-window-transparent', () => {
-        let win: any = new BrowserWindow({
-            width: 800,
-            height: 600,
-            transparent: true,
-            frame: false,
-            titleBarStyle: 'hidden'
-        })
-        win.on('close', () => {
-            win = null
-        })
-        win.loadURL(transhtml)
+        win.loadURL(RENDERER_URL)
     })
 }
 
 export default function handleWindowMessage() {
     createNoBarWindow()
-    createWindowDrag()
-    createWindowTrans()
 }

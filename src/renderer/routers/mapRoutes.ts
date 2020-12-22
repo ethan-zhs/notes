@@ -1,11 +1,4 @@
-import Dialog from '@renderer/pages/Dialog'
-import Menus from '@renderer/pages/Menus'
-import Print from '@renderer/pages/Print'
-import System from '@renderer/pages/System'
-import Process from '@renderer/pages/Process'
-import Shell from '@renderer/pages/Shell'
-import Window from '@renderer/pages/Window'
-import Protect from '@renderer/pages/Protect'
+import Settings from '@renderer/pages/Settings'
 import Home from '@renderer/pages/Home'
 
 export interface IRoutesProps {
@@ -38,52 +31,10 @@ export interface IRoutesProps {
 
 const routes: IRoutesProps[] = [
     {
-        path: '/dialog',
+        path: '/settings',
         exact: true,
-        component: Dialog,
-        key: 'dialog'
-    },
-    {
-        path: '/menu',
-        exact: true,
-        component: Menus,
-        key: 'menu'
-    },
-    {
-        path: '/print',
-        exact: true,
-        component: Print,
-        key: 'print'
-    },
-    {
-        path: '/system',
-        exact: true,
-        component: System,
-        key: 'system'
-    },
-    {
-        path: '/process',
-        exact: true,
-        component: Process,
-        key: 'process'
-    },
-    {
-        path: '/shell',
-        exact: true,
-        component: Shell,
-        key: 'shell'
-    },
-    {
-        path: '/window',
-        exact: true,
-        component: Window,
-        key: 'window'
-    },
-    {
-        path: '/protect',
-        exact: true,
-        component: Protect,
-        key: 'protect'
+        component: Settings,
+        key: 'settings'
     },
     {
         path: '/home',
