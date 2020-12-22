@@ -1,7 +1,9 @@
 import * as React from 'react'
 import { fromJS } from 'immutable'
 import classNames from 'classnames'
-import { ipcRenderer } from 'electron'
+import url from 'url'
+import path from 'path'
+import { remote } from 'electron'
 
 const styles = require('./index.less')
 
@@ -110,7 +112,22 @@ class Home extends React.Component<any, any> {
     }
 
     openSettingsDialog = () => {
-        ipcRenderer.send('open-settings-dialog')
+        // ipcRenderer.send('open-settings-dialog')
+        const SETTINGS_URL =
+            process.env.NODE_ENV === 'production'
+                ? `file://${__dirname}/index.html#/settings`
+                : 'http://localhost:1234/#settings'
+
+        const BrowserWindow = remote.BrowserWindow
+        const win = new BrowserWindow({
+            height: 600,
+            width: 800,
+            webPreferences: {
+                nodeIntegration: true
+            }
+        })
+        console.log(process.env.NODE_ENV, `file://${__dirname}/index.html#/settings`, `http://localhost:1234/#settings`)
+        win.loadURL(SETTINGS_URL)
     }
 
     handleChangeTaskList = (type: string) => {
