@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { fromJS } from 'immutable'
+import { fromJS, update } from 'immutable'
 import classNames from 'classnames'
 import { remote } from 'electron'
 
@@ -100,7 +100,7 @@ class Home extends React.Component<any, any> {
         const { noteList = [], activeNoteId, hoverNoteId, taskType, isCreating } = this.state
 
         const currentNoteList = noteList.filter((item: any) => item.noteStatus === taskType)
-        const activeNote = currentNoteList.find((item: any) => item.id === activeNoteId)
+        const activeNote = currentNoteList.find((item: any) => item.id === activeNoteId) || {}
 
         return (
             <div className={styles['notes']}>
@@ -121,7 +121,7 @@ class Home extends React.Component<any, any> {
                         ))}
                     </div>
 
-                    <div className={styles['add-btn']}>
+                    <div className={styles['add-btn']} onClick={this.handleCreateNote}>
                         <svg height="100%" width="100%" viewBox="0 0 36 36">
                             <path
                                 className={styles['svg-icon']}
@@ -139,8 +139,8 @@ class Home extends React.Component<any, any> {
                     </div>
                 </div>
 
-                {isCreating || (activeNote && activeNote.id) ? (
-                    <TextInput onChange={this.handleNoteValueChange} initializeValue={activeNote.content} />
+                {isCreating || activeNote.id ? (
+                    <TextInput onChange={this.handleNoteValueChange} initializeValue={activeNote.content || ''} />
                 ) : (
                     <div className={styles['note-list']}>
                         {currentNoteList.map((item: any) => (
@@ -183,6 +183,12 @@ class Home extends React.Component<any, any> {
         )
     }
 
+    handleCreateNote = () => {
+        this.setState({
+            isCreating: true
+        })
+    }
+
     openSettingsDialog = () => {
         const SETTINGS_URL =
             process.env.NODE_ENV === 'production'
@@ -219,7 +225,27 @@ class Home extends React.Component<any, any> {
     }
 
     handleNoteValueChange = (value: string) => {
-        this.uppdateNoteValue(value)
+        const { isCreating } = this.state
+        if (isCreating) {
+            this.createNoteValue(value)
+        } else {
+            this.uppdateNoteValue(value)
+        }
+    }
+
+    createNoteValue = (value: string) => {
+        const { noteList } = this.state
+
+        const noteListTemp = fromJS(noteList).toJS()
+        const newNote = {
+            id: Math.round(Math.random() * 1000).toString(),
+            content: value,
+            noteStatus: 'Todo',
+            updateTime: Date.now()
+        }
+
+        noteListTemp.unshift(newNote)
+        this.setState({ noteList: noteListTemp, isCreating: false })
     }
 
     uppdateNoteValue = (value: string) => {
