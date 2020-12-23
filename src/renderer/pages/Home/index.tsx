@@ -1,30 +1,95 @@
 import * as React from 'react'
 import { fromJS } from 'immutable'
 import classNames from 'classnames'
-import url from 'url'
-import path from 'path'
 import { remote } from 'electron'
+
+import TextInput from './TextInput'
 
 const styles = require('./index.less')
 
 class Home extends React.Component<any, any> {
+    timer: any
+
     constructor(props: any) {
         super(props)
 
         this.state = {
             taskType: 'Todo',
-            activeNote: '',
-            hoverNote: '',
+            isCreating: false,
+            activeNoteId: '',
+            hoverNoteId: '',
             noteList: [
                 {
                     id: '11',
-                    name: '11111',
-                    noteStatus: 'Todo'
+                    content: '111asdasasdasfffa韶大啊实打实v啊实打实阿三大苏打啊大苏打11',
+                    noteStatus: 'Todo',
+                    updateTime: ''
                 },
                 {
                     id: '22',
-                    name: '22222',
-                    noteStatus: 'Done'
+                    content: '22222',
+                    noteStatus: 'Done',
+                    updateTime: ''
+                },
+                {
+                    id: '33',
+                    content: '22222',
+                    noteStatus: 'Done',
+                    updateTime: ''
+                },
+                {
+                    id: '44',
+                    content: '22222',
+                    noteStatus: 'Done',
+                    updateTime: ''
+                },
+                {
+                    id: '55',
+                    content: '22222',
+                    noteStatus: 'Done',
+                    updateTime: ''
+                },
+                {
+                    id: '66',
+                    content: '22222',
+                    noteStatus: 'Done',
+                    updateTime: ''
+                },
+                {
+                    id: '77',
+                    content: '22222',
+                    noteStatus: 'Done',
+                    updateTime: ''
+                },
+                {
+                    id: '88',
+                    content: '22222',
+                    noteStatus: 'Done',
+                    updateTime: ''
+                },
+                {
+                    id: '99',
+                    content: '22222',
+                    noteStatus: 'Done',
+                    updateTime: ''
+                },
+                {
+                    id: '1010',
+                    content: '88888',
+                    noteStatus: 'Done',
+                    updateTime: ''
+                },
+                {
+                    id: '1111',
+                    content: '88888',
+                    noteStatus: 'Done',
+                    updateTime: ''
+                },
+                {
+                    id: '1212',
+                    content: '88888',
+                    noteStatus: 'Done',
+                    updateTime: ''
                 }
             ]
         }
@@ -32,12 +97,13 @@ class Home extends React.Component<any, any> {
 
     render() {
         const MENU = ['Todo', 'Done']
-        const { noteList, activeNote, hoverNote, taskType } = this.state
+        const { noteList = [], activeNoteId, hoverNoteId, taskType, isCreating } = this.state
 
         const currentNoteList = noteList.filter((item: any) => item.noteStatus === taskType)
+        const activeNote = currentNoteList.find((item: any) => item.id === activeNoteId)
 
         return (
-            <div>
+            <div className={styles['notes']}>
                 <header className={styles['drag-header']}></header>
                 <div className={styles['header']}>
                     <div className={styles['menu']}>
@@ -55,32 +121,47 @@ class Home extends React.Component<any, any> {
                         ))}
                     </div>
 
+                    <div className={styles['add-btn']}>
+                        <svg height="100%" width="100%" viewBox="0 0 36 36">
+                            <path
+                                className={styles['svg-icon']}
+                                d="M 6,16 16,16 16,7 19,7 19,16 30,16 30,19 19,19 19,29 16,29 16,19 6,19 z"
+                            ></path>
+                        </svg>
+                    </div>
+
                     <div className={styles['setting-btn']} onClick={this.openSettingsDialog}>
                         <svg width="100%" height="100%">
-                            <circle cx="3" cy="10" r="1.8" className={styles['setting-svg-fill']} />
-                            <circle cx="10" cy="10" r="1.8" className={styles['setting-svg-fill']} />
-                            <circle cx="17" cy="10" r="1.8" className={styles['setting-svg-fill']} />
+                            <circle cx="3" cy="10" r="1.8" className={styles['svg-icon']} />
+                            <circle cx="10" cy="10" r="1.8" className={styles['svg-icon']} />
+                            <circle cx="17" cy="10" r="1.8" className={styles['svg-icon']} />
                         </svg>
                     </div>
                 </div>
 
-                <div className={styles['note-list']}>
-                    {currentNoteList.map((item: any) => (
-                        <div
-                            key={item.id}
-                            className={styles['note-item']}
-                            onClick={() => this.changeActiveNote(item.id)}
-                            onDoubleClick={() => this.changeNoteStatus(item.id)}
-                        >
-                            {activeNote !== item.id ? (
+                {isCreating || (activeNote && activeNote.id) ? (
+                    <TextInput onChange={this.handleNoteValueChange} initializeValue={activeNote.content} />
+                ) : (
+                    <div className={styles['note-list']}>
+                        {currentNoteList.map((item: any) => (
+                            <div
+                                key={item.id}
+                                className={styles['note-item']}
+                                onClick={() => this.changeActiveNote(item.id)}
+                                onDoubleClick={() => this.changeNoteStatus(item.id)}
+                            >
                                 <div
                                     className={styles['note-detail']}
                                     onMouseLeave={() => this.changeHoverNote('')}
                                     onMouseEnter={() => this.changeHoverNote(item.id)}
                                 >
-                                    <div className={styles['note-title']}>▫ {item.name}1</div>
+                                    <svg width="14" height="20">
+                                        <circle cx="4" cy="10" r="2" className={styles['svg-icon']} />
+                                    </svg>
 
-                                    {hoverNote === item.id && (
+                                    <div className={styles['note-title']}>{item.content}</div>
+
+                                    {hoverNoteId === item.id && (
                                         <svg
                                             width="20px"
                                             height="20px"
@@ -94,25 +175,15 @@ class Home extends React.Component<any, any> {
                                         </svg>
                                     )}
                                 </div>
-                            ) : (
-                                <input
-                                    className={styles['note-input']}
-                                    value={item.name}
-                                    autoFocus
-                                    onBlur={() => this.changeActiveNote()}
-                                    onKeyUp={this.noteInputKeyup}
-                                    onChange={this.handleNoteValueChange}
-                                />
-                            )}
-                        </div>
-                    ))}
-                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         )
     }
 
     openSettingsDialog = () => {
-        // ipcRenderer.send('open-settings-dialog')
         const SETTINGS_URL =
             process.env.NODE_ENV === 'production'
                 ? `file://${__dirname}/index.html#/settings`
@@ -120,46 +191,53 @@ class Home extends React.Component<any, any> {
 
         const BrowserWindow = remote.BrowserWindow
         const win = new BrowserWindow({
-            height: 600,
-            width: 800,
+            height: 300,
+            width: 500,
+            transparent: true,
+            frame: false,
             webPreferences: {
-                nodeIntegration: true
+                nodeIntegration: true,
+                enableRemoteModule: true
             }
         })
-        console.log(process.env.NODE_ENV, `file://${__dirname}/index.html#/settings`, `http://localhost:1234/#settings`)
         win.loadURL(SETTINGS_URL)
+
+        win.webContents.openDevTools()
     }
 
     handleChangeTaskList = (type: string) => {
         this.setState({ taskType: type })
     }
 
-    changeActiveNote = (noteId?: string | number) => {
-        this.setState({ activeNote: noteId, hoverNote: '' })
+    changeActiveNote = (noteId: string | number) => {
+        this.timer = setTimeout(() => {
+            if (this.timer) {
+                clearTimeout(this.timer)
+                this.setState({ activeNoteId: noteId, hoverNoteId: '' })
+            }
+        }, 300)
     }
 
-    handleNoteValueChange = (e: any) => {
-        const { activeNote, noteList } = this.state
+    handleNoteValueChange = (value: string) => {
+        this.uppdateNoteValue(value)
+    }
+
+    uppdateNoteValue = (value: string) => {
+        const { activeNoteId, noteList } = this.state
 
         const noteListTemp = fromJS(noteList).toJS()
 
         noteListTemp.forEach((item: any) => {
-            if (item.id === activeNote) {
-                item.name = e.target.value
+            if (item.id === activeNoteId) {
+                item.content = value
             }
         })
 
-        this.setState({ noteList: noteListTemp })
-    }
-
-    noteInputKeyup = (e: any) => {
-        if (e.keyCode === 13) {
-            e.target.blur()
-        }
+        this.setState({ noteList: noteListTemp, activeNoteId: '' })
     }
 
     changeHoverNote = (noteId: string | number) => {
-        this.setState({ hoverNote: noteId })
+        this.setState({ hoverNoteId: noteId })
     }
 
     deleteNote = (e: any, noteId: string | number) => {
@@ -172,6 +250,10 @@ class Home extends React.Component<any, any> {
     }
 
     changeNoteStatus = (noteId: string | number) => {
+        // 避免和单击事件冲突
+        clearTimeout(this.timer)
+        this.timer = null
+
         const { noteList = [] } = this.state
 
         const noteListTemp = fromJS(noteList).toJS()
@@ -181,7 +263,7 @@ class Home extends React.Component<any, any> {
             }
         })
 
-        this.setState({ noteList: noteListTemp, activeNote: '', hoverNote: '' })
+        this.setState({ noteList: noteListTemp, activeNoteId: '', hoverNoteId: '' })
     }
 }
 

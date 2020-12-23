@@ -1,0 +1,79 @@
+.drag-header {
+    height: 15px;
+    -webkit-user-select: none;
+    -webkit-app-region: drag;
+    cursor: pointer;
+}
+
+.header {
+    color: #fff;
+    font-size: 12px;
+    padding: 0px 20px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+
+    .title {
+        font-size: 15px;
+        flex: 1;
+    }
+
+    .smallest-btn,
+    .close-btn {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        margin-left: 10px;
+    
+        .svg-icon {
+            fill: #fff;
+        }
+    }
+} 
+
+
+
+.note-list {
+    margin-top: 15px;
+    color: #fff;
+
+    .note-item {
+        min-height: 40px;
+        margin: 0 20px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255,255,255,.2);
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+
+        .note-detail {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .note-title {
+                display: flex;
+                align-items: center;
+                flex: 1; 
+                overflow : hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+            }
+        }
+
+        .note-input {
+            width: 100%;
+            background: transparent;
+            color: #fff;
+            outline: none;
+            border: 0;
+            padding: 0 10px;
+            font-size: 13px;
+        }
+    }
+}
