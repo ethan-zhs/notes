@@ -35,17 +35,18 @@
         .menu-item {
             margin-right: 10px;
             font-size: 12px;
-            color: #aaa;
+            color: var(--primary-fontcolor);
+            opacity: 0.7;
             cursor: pointer;
             transition: font-size .1s;
     
             &:hover {
-                color: #fff;
+                opacity: 1;
             }
     
             &.active {
                 font-size: 20px;
-                color:#fff;
+                opacity: 1;
             }
         }    
     }
@@ -64,7 +65,7 @@
 .note-list {
     margin-top: 15px;
     margin-bottom: 15px;
-    color: #fff;
+    color: var(--primary-fontcolor);
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
@@ -96,16 +97,6 @@
                     opacity: 1;
                 }
             }
-
-            .note-input {
-                width: 100%;
-                background: transparent;
-                color: #fff;
-                outline: none;
-                border: 0;
-                padding: 0 10px;
-                font-size: 13px;
-            }
         }
     }
 }
@@ -124,7 +115,7 @@
         line-height: 25px;
         resize: none;
         background: transparent;
-        color: #fff;
+        color: var(--primary-fontcolor);
         text-align: justify;
     }
 }

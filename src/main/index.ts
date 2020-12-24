@@ -1,12 +1,14 @@
 import path from 'path'
 import url from 'url'
-import { app, BrowserWindow, Menu } from 'electron'
+import electron from 'electron'
 import template from './menu/template'
 import handleMessage from './event/message'
 import handleQuit from './event/quit'
 import createTray from './protect/tray'
 import handleCrashed from './protect/crashed'
 import initGlobalShortcut from './services/shortcuts'
+
+const { app, BrowserWindow, Menu } = electron
 
 declare global {
     namespace NodeJS {
@@ -18,10 +20,15 @@ declare global {
 }
 
 function createWindow() {
+    const display = electron.screen.getPrimaryDisplay()
+    const width = display.bounds.width
+
     // 创建浏览器窗口
     const win = new BrowserWindow({
         width: 300,
         height: 500,
+        x: width - 330,
+        y: 30,
         resizable: false,
         transparent: true,
         frame: false,

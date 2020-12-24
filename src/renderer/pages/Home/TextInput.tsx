@@ -42,9 +42,9 @@ class TextInput extends React.Component<IProps, any> {
     handleValueChange = () => {
         const { onChange, initializeValue = '' } = this.props
 
-        let noteValue = this.state.noteValue
+        let noteValue = this.state.noteValue.trim()
 
-        if (noteValue.trim() === '') {
+        if (noteValue === '') {
             noteValue = initializeValue
         }
 

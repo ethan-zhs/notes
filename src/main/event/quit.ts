@@ -1,37 +1,18 @@
 /**
  * 程序退出监控
  */
-import { app, BrowserWindow, dialog, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 
 let hasQuit = false
 
-function checkQuit(mainWindow: any, event: any) {
-    const options = {
-        type: 'info',
-        title: '关闭确认',
-        message: '确认要最小化程序到托盘吗？',
-        buttons: ['确认', '关闭程序']
-    }
-
-    dialog.showMessageBox(options).then(res => {
-        const index = res.response
-        if (index === 0) {
-            event.preventDefault()
-            mainWindow.hide()
-        } else {
-            hasQuit = true
-            mainWindow = null
-            app.exit(0)
-        }
-    })
-}
-
 export default function handleQuit() {
-    const mainWindow = BrowserWindow.fromId(global.mainId)
+    let mainWindow: any = BrowserWindow.fromId(global.mainId)
 
-    mainWindow.on('close', event => {
+    mainWindow.on('close', (event: any) => {
         event.preventDefault()
-        checkQuit(mainWindow, event)
+        hasQuit = true
+        mainWindow = null
+        app.exit(0)
     })
 
     app.on('window-all-closed', () => {

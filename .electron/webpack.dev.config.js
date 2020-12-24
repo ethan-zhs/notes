@@ -86,7 +86,7 @@ module.exports = {
                         loader: 'less-loader',
                         options: {
                             lessOptions: {
-                                modifyVars: resolve('src/render/theme/antd/antd_modifyvars.js'),
+                                modifyVars: resolve('src/renderer/statics/theme/antd_modifyvars.js'),
                                 javascriptEnabled: true
                             }
                         }

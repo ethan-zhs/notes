@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { fromJS, update } from 'immutable'
+import { fromJS } from 'immutable'
 import classNames from 'classnames'
-import { remote } from 'electron'
+import { remote, ipcRenderer } from 'electron'
 
 import TextInput from './TextInput'
 
@@ -15,6 +15,7 @@ class Home extends React.Component<any, any> {
 
         this.state = {
             taskType: 'Todo',
+            settingWin: null,
             isCreating: false,
             activeNoteId: '',
             hoverNoteId: '',
@@ -93,6 +94,13 @@ class Home extends React.Component<any, any> {
                 }
             ]
         }
+    }
+
+    componentDidMount() {
+        ipcRenderer.on('config-update', (event, msg) => {
+            console.log(msg)
+            document.documentElement.style.setProperty('--primary-bgcolor', '#ff3232')
+        })
     }
 
     render() {
@@ -190,25 +198,39 @@ class Home extends React.Component<any, any> {
     }
 
     openSettingsDialog = () => {
-        const SETTINGS_URL =
-            process.env.NODE_ENV === 'production'
-                ? `file://${__dirname}/index.html#/settings`
-                : 'http://localhost:1234/#settings'
+        const { settingWin } = this.state
 
-        const BrowserWindow = remote.BrowserWindow
-        const win = new BrowserWindow({
-            height: 300,
-            width: 500,
-            transparent: true,
-            frame: false,
-            webPreferences: {
-                nodeIntegration: true,
-                enableRemoteModule: true
-            }
-        })
-        win.loadURL(SETTINGS_URL)
+        // 只能初始化一个settings win
+        if (!settingWin) {
+            const SETTINGS_URL =
+                process.env.NODE_ENV === 'production'
+                    ? `file://${__dirname}/index.html#/settings`
+                    : 'http://localhost:1234/#settings'
 
-        win.webContents.openDevTools()
+            const BrowserWindow = remote.BrowserWindow
+            const win = new BrowserWindow({
+                height: 300,
+                width: 500,
+                transparent: true,
+                frame: false,
+                webPreferences: {
+                    nodeIntegration: true,
+                    enableRemoteModule: true
+                }
+            })
+            win.loadURL(SETTINGS_URL)
+
+            win.webContents.openDevTools()
+
+            win.on('close', event => {
+                event.preventDefault()
+                this.setState({ settingWin: null })
+            })
+
+            this.setState({ settingWin: win })
+        } else {
+            settingWin.show()
+        }
     }
 
     handleChangeTaskList = (type: string) => {
@@ -227,35 +249,39 @@ class Home extends React.Component<any, any> {
     handleNoteValueChange = (value: string) => {
         const { isCreating } = this.state
         if (isCreating) {
-            this.createNoteValue(value)
+            this.createNote(value)
         } else {
-            this.uppdateNoteValue(value)
+            this.uppdateNote(value)
         }
     }
 
-    createNoteValue = (value: string) => {
+    createNote = (value: string) => {
         const { noteList } = this.state
 
         const noteListTemp = fromJS(noteList).toJS()
-        const newNote = {
-            id: Math.round(Math.random() * 1000).toString(),
-            content: value,
-            noteStatus: 'Todo',
-            updateTime: Date.now()
+
+        if (value && value != '') {
+            const newNote = {
+                id: Math.round(Math.random() * 1000).toString(),
+                content: value,
+                noteStatus: 'Todo',
+                updateTime: Date.now()
+            }
+            noteListTemp.unshift(newNote)
         }
 
-        noteListTemp.unshift(newNote)
         this.setState({ noteList: noteListTemp, isCreating: false })
     }
 
-    uppdateNoteValue = (value: string) => {
+    uppdateNote = (value: string) => {
         const { activeNoteId, noteList } = this.state
 
         const noteListTemp = fromJS(noteList).toJS()
 
         noteListTemp.forEach((item: any) => {
-            if (item.id === activeNoteId) {
+            if (item.id === activeNoteId && item.content !== value) {
                 item.content = value
+                item.updateTime = Date.now()
             }
         })
 

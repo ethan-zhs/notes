@@ -2,18 +2,44 @@ import handleWindowMessage from './windows'
 import { BrowserWindow, ipcMain } from 'electron'
 
 // 隐藏主程序窗口
-function windowHide() {
+function windowHide(win: any) {
     ipcMain.on('window-hide', () => {
-        const mainWindow = BrowserWindow.fromId(global.mainId)
-        mainWindow.hide()
+        win.hide()
     })
 }
 
 // 关闭主程序窗口
-function windowClose() {
+function windowClose(win: any) {
     ipcMain.on('window-close', () => {
-        const mainWindow = BrowserWindow.fromId(global.mainId)
-        mainWindow.close()
+        win.close()
+    })
+}
+
+// 关闭主程序窗口
+function windowAlwaysOnTop(win: any) {
+    ipcMain.on('window-always-on-top', (event, flag: boolean) => {
+        win.setAlwaysOnTop(flag)
+    })
+}
+
+// 关闭主程序窗口
+function windowPositionLock(win: any) {
+    ipcMain.on('window-position-lock', (event, movable: boolean) => {
+        win.movable = movable
+    })
+}
+
+// 关闭主程序窗口
+function windowSizeLock(win: any) {
+    ipcMain.on('window-size-lock', (event, resizable: boolean) => {
+        win.resizable = resizable
+    })
+}
+
+// 关闭主程序窗口
+function configUpdate(win: any) {
+    ipcMain.on('config-update', (event, config: any) => {
+        win.webContents.send('config-update', config)
     })
 }
 
@@ -53,8 +79,13 @@ function sendMsgContinuous() {
 }
 
 export default function handleMessage() {
-    windowHide()
-    windowClose()
+    const mainWindow = BrowserWindow.fromId(global.mainId)
+    windowHide(mainWindow)
+    windowClose(mainWindow)
+    windowAlwaysOnTop(mainWindow)
+    windowPositionLock(mainWindow)
+    windowSizeLock(mainWindow)
+    configUpdate(mainWindow)
     getSyncMsg()
     getAsyncMsg()
     sendMsgContinuous()
