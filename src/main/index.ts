@@ -1,14 +1,14 @@
 import path from 'path'
 import url from 'url'
-import electron from 'electron'
+import { app, BrowserWindow, Menu } from 'electron'
 import template from './menu/template'
 import handleMessage from './event/message'
 import handleQuit from './event/quit'
 import createTray from './protect/tray'
 import handleCrashed from './protect/crashed'
 import initGlobalShortcut from './services/shortcuts'
-
-const { app, BrowserWindow, Menu } = electron
+import getDefaultConfig from './constants/config'
+import * as Api from './api/local'
 
 declare global {
     namespace NodeJS {
@@ -20,16 +20,25 @@ declare global {
 }
 
 function createWindow() {
-    const display = electron.screen.getPrimaryDisplay()
-    const width = display.bounds.width
+    let config = Api.getConfig()
+
+    // config 不存在则初始化默认配置
+    if (!config) {
+        config = getDefaultConfig()
+        Api.updateConfig(config)
+    }
 
     // 创建浏览器窗口
     const win = new BrowserWindow({
-        width: 300,
-        height: 500,
-        x: width - 330,
-        y: 30,
-        resizable: false,
+        width: config.width,
+        height: config.height,
+        x: config.x,
+        y: config.y,
+        minHeight: 300,
+        minWidth: 300,
+        resizable: config.resizable,
+        movable: config.movable,
+        alwaysOnTop: config.alwaysOnTop,
         transparent: true,
         frame: false,
         webPreferences: {

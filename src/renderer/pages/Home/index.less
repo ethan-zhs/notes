@@ -8,114 +8,122 @@
     bottom: 0;
 
     .svg-icon {
-        fill: #fff;
-    }
-}
-
-.drag-header {
-    height: 15px;
-    -webkit-user-select: none;
-    -webkit-app-region: drag;
-    cursor: pointer;
-}
-
-.header {
-    color: #fff;
-    font-size: 12px;
-    font-weight: bold;
-    padding: 0px 20px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    user-select: none;
-
-    .menu {
-        flex: 1;
-        .menu-item {
-            margin-right: 10px;
-            font-size: 12px;
-            color: var(--primary-fontcolor);
-            opacity: 0.7;
-            cursor: pointer;
-            transition: font-size .1s;
-    
-            &:hover {
-                opacity: 1;
-            }
-    
-            &.active {
-                font-size: 20px;
-                opacity: 1;
-            }
-        }    
+        fill: var(--primary-fontcolor);
     }
 
-    .add-btn,
-    .setting-btn {
-        width: 20px;
-        height: 20px;
+    .drag-header {
+        height: 15px;
+        -webkit-user-select: none;
+        -webkit-app-region: drag;
         cursor: pointer;
-        margin-left: 10px;
     }
-} 
-
-
-
-.note-list {
-    margin-top: 15px;
-    margin-bottom: 15px;
-    color: var(--primary-fontcolor);
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-
-    .note-item {
-        min-height: 45px;
-        margin: 0 20px;
-        padding: 10px 0;
-        border-bottom: 1px solid rgba(255,255,255,.2);
+    
+    .header {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 0px 20px;
+        height: 30px;
         display: flex;
         align-items: center;
-        cursor: pointer;
-
-        .note-detail {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            .note-title {
-                align-items: center;
-                flex: 1; 
-                white-space: nowrap;
-                overflow : hidden;
-                text-overflow: ellipsis;                
-                opacity: 0.8;
-
+        justify-content: space-between;
+        user-select: none;
+    
+        .menu {
+            flex: 1;
+            .menu-item {
+                margin-right: 10px;
+                font-size: 12px;
+                color: var(--primary-fontcolor);
+                opacity: 0.7;
+                cursor: pointer;
+                transition: font-size .1s;
+        
                 &:hover {
                     opacity: 1;
+                }
+        
+                &.active {
+                    font-size: 20px;
+                    opacity: 1;
+                }
+            }    
+        }
+    
+        .add-btn,
+        .setting-btn {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+    } 
+    
+    
+    
+    .note-list {
+        margin-top: 15px;
+        margin-bottom: 15px;
+        color: var(--primary-fontcolor);
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+    
+        .note-item {
+            min-height: 45px;
+            margin: 0 20px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,.2);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+    
+            .note-detail {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+
+                &.note-done {
+                    text-decoration: line-through;
+                    opacity: 0.6;
+                }
+    
+                .note-title {
+                    align-items: center;
+                    flex: 1; 
+                    white-space: nowrap;
+                    overflow : hidden;
+                    text-overflow: ellipsis;  
+                    opacity: 1;
+                    transition: opacity .3s;
+    
+                    &:hover {
+                        opacity: 0.8;
+                    }
                 }
             }
         }
     }
-}
-
-.note-input {   
-    margin-top: 25px;
     
-    .note-input-textarea {
-        outline: none;
-        border: 0;
-        padding: 0 25px;
-        width: 100%;
-        font-size: 13px;
-        font-family: 'Microsoft YaHei';
-        height: 400px;
-        line-height: 25px;
-        resize: none;
-        background: transparent;
-        color: var(--primary-fontcolor);
-        text-align: justify;
+    .note-input {   
+        margin: 25px 0;
+        flex: 1;
+        
+        .note-input-textarea {
+            outline: none;
+            border: 0;
+            padding: 0 25px;
+            width: 100%;
+            font-size: 13px;
+            font-family: 'Microsoft YaHei';
+            height: 100%;
+            display: block;
+            line-height: 25px;
+            resize: none;
+            background: transparent;
+            color: var(--primary-fontcolor);
+            text-align: justify;
+        }
     }
 }
+

@@ -1,5 +1,6 @@
 import handleWindowMessage from './windows'
 import { BrowserWindow, ipcMain } from 'electron'
+import * as Api from '../api/local'
 
 // 隐藏主程序窗口
 function windowHide(win: any) {
@@ -16,30 +17,41 @@ function windowClose(win: any) {
 }
 
 // 关闭主程序窗口
-function windowAlwaysOnTop(win: any) {
-    ipcMain.on('window-always-on-top', (event, flag: boolean) => {
-        win.setAlwaysOnTop(flag)
-    })
-}
-
-// 关闭主程序窗口
-function windowPositionLock(win: any) {
-    ipcMain.on('window-position-lock', (event, movable: boolean) => {
-        win.movable = movable
-    })
-}
-
-// 关闭主程序窗口
-function windowSizeLock(win: any) {
-    ipcMain.on('window-size-lock', (event, resizable: boolean) => {
-        win.resizable = resizable
-    })
-}
-
-// 关闭主程序窗口
 function configUpdate(win: any) {
-    ipcMain.on('config-update', (event, config: any) => {
+    ipcMain.on('config-update', (event, conf: any = {}) => {
+        let config = Api.getConfig() || {}
+        config = Object.assign(config, conf)
+
+        win.resizable = config.resizable
+        win.movable = config.movable
+        win.setAlwaysOnTop(config.alwaysOnTop)
+
+        Api.updateConfig(config)
         win.webContents.send('config-update', config)
+    })
+}
+
+// 关闭主程序窗口
+function notesUpdate(win: any) {
+    ipcMain.on('notes-update', (event, notes: any = {}) => {
+        Api.updateNotes(notes)
+        win.webContents.send('notes-update', notes)
+    })
+}
+
+// 关闭主程序窗口
+function getNotes() {
+    ipcMain.on('get-notes', (event: any) => {
+        const notes = Api.getNotes()
+        event.returnValue = notes
+    })
+}
+
+// 关闭主程序窗口
+function getConfig() {
+    ipcMain.on('get-config', (event: any) => {
+        const config = Api.getConfig()
+        event.returnValue = config
     })
 }
 
@@ -82,10 +94,10 @@ export default function handleMessage() {
     const mainWindow = BrowserWindow.fromId(global.mainId)
     windowHide(mainWindow)
     windowClose(mainWindow)
-    windowAlwaysOnTop(mainWindow)
-    windowPositionLock(mainWindow)
-    windowSizeLock(mainWindow)
     configUpdate(mainWindow)
+    notesUpdate(mainWindow)
+    getNotes()
+    getConfig()
     getSyncMsg()
     getAsyncMsg()
     sendMsgContinuous()

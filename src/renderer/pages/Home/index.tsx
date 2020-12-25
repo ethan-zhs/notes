@@ -4,6 +4,7 @@ import classNames from 'classnames'
 import { remote, ipcRenderer } from 'electron'
 
 import TextInput from './TextInput'
+import { cssVarUpdate } from '../../utils/css'
 
 const styles = require('./index.less')
 
@@ -97,9 +98,11 @@ class Home extends React.Component<any, any> {
     }
 
     componentDidMount() {
-        ipcRenderer.on('config-update', (event, msg) => {
-            console.log(msg)
-            document.documentElement.style.setProperty('--primary-bgcolor', '#ff3232')
+        const config = ipcRenderer.sendSync('get-config')
+        cssVarUpdate(config.theme)
+
+        ipcRenderer.on('config-update', (event, conf) => {
+            cssVarUpdate(conf.theme)
         })
     }
 
@@ -159,7 +162,10 @@ class Home extends React.Component<any, any> {
                                 onDoubleClick={() => this.changeNoteStatus(item.id)}
                             >
                                 <div
-                                    className={styles['note-detail']}
+                                    className={classNames({
+                                        [styles['note-detail']]: true,
+                                        [styles['note-done']]: item.noteStatus === 'Done'
+                                    })}
                                     onMouseLeave={() => this.changeHoverNote('')}
                                     onMouseEnter={() => this.changeHoverNote(item.id)}
                                 >
@@ -177,7 +183,7 @@ class Home extends React.Component<any, any> {
                                             viewBox="-180 0 700 370"
                                             onClick={e => this.deleteNote(e, item.id)}
                                         >
-                                            <g fill="#ddd">
+                                            <g className={styles['svg-icon']}>
                                                 <polygon points="357,35.7 321.3,0 178.5,142.8 35.7,0 0,35.7 142.8,178.5 0,321.3 35.7,357 178.5,214.2 321.3,357 357,321.3 214.2,178.5" />
                                             </g>
                                         </svg>

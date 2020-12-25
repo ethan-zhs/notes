@@ -1,33 +1,37 @@
 import * as React from 'react'
 import { remote, ipcRenderer } from 'electron'
-import { Radio, Select, Checkbox } from 'antd'
+import { Radio, Checkbox, Popover } from 'antd'
+
+import { cssVarUpdate } from '../../utils/css'
+import { BACKGROUND_COLORLIST, FONT_COLORLIST } from '../../constants/color'
 
 const styles = require('./index.less')
-
-const { Option } = Select
 
 class Settings extends React.Component<any, any> {
     constructor(props: any) {
         super(props)
 
         this.state = {
-            config: {
-                movable: true, // 是否可移动窗口
-                resizable: false, // 是否可调节窗口大小
-                alwaysTop: false, // 窗口置顶
-                openAtLogin: false, // 开机自启动
-                theme: '', // 主题类型
-                background: '', // 自定义背景颜色
-                color: '', // 自定义字体颜色
-                width: 0, // 窗口宽度
-                height: 0, // 窗口高度
-                x: 0, // 窗口水平位置
-                y: 0 // 窗口垂直位置
-            }
+            config: {}
         }
     }
 
+    componentDidMount() {
+        const config = ipcRenderer.sendSync('get-config')
+        cssVarUpdate(config.theme)
+        this.setState({
+            config: Object.assign({}, config, {
+                moveLock: !config.movable,
+                sizeLock: !config.resizable
+            })
+        })
+    }
+
     render() {
+        const { config } = this.state
+
+        const layerSettingsValue = ['moveLock', 'sizeLock', 'alwaysOnTop'].filter(key => config[key])
+
         return (
             <div>
                 <header className={styles['drag-header']}></header>
@@ -54,34 +58,39 @@ class Settings extends React.Component<any, any> {
                         <label>版本信息</label>
                         <div>v0.0.11 Ethan zhs</div>
                     </div>
+
                     <div className={styles['setting-item']}>
                         <label>图层设置</label>
-                        <div>
-                            <Checkbox.Group
-                                options={[
-                                    { label: '位置锁定', value: 'move' },
-                                    { label: '置于顶层', value: 'top' },
-                                    { label: '大小锁定', value: 'size' }
-                                ]}
-                                defaultValue={['size']}
-                                onChange={this.handleLayerSettingChange}
-                            />
-                        </div>
+                        <Checkbox.Group
+                            options={[
+                                { label: '位置锁定', value: 'moveLock' },
+                                { label: '置于顶层', value: 'alwaysOnTop' },
+                                { label: '大小锁定', value: 'sizeLock' }
+                            ]}
+                            value={layerSettingsValue}
+                            onChange={this.handleLayerSettingChange}
+                        />
                     </div>
+
                     <div className={styles['setting-item']}>
                         <label>界面风格</label>
-                        <div>
-                            <Radio.Group>
-                                <Radio value={1}>透明</Radio>
-                                <Radio value={2}>便签</Radio>
-                                <Radio value={3}>自定义</Radio>
-                            </Radio.Group>
-                        </div>
+                        <Radio.Group onChange={this.handleThemeChange} value={config.theme}>
+                            <Radio value={'THEME_TRANSPARENT'}>透明</Radio>
+                            <Radio value={'THEME_BIANQIAN'}>便签</Radio>
+                            <Radio value={'THEME_PERSONAL'}>自定义</Radio>
+                        </Radio.Group>
                     </div>
+
                     <div className={styles['setting-item']}>
                         <label>自定义主题</label>
-                        <div>背景颜色</div>
-                        <div>字体颜色</div>
+                        <div className={styles['personal-theme-item']}>
+                            <span>背景</span>
+                            {this.renderColorPicker(BACKGROUND_COLORLIST)}
+                        </div>
+                        <div className={styles['personal-theme-item']}>
+                            <span>字体</span>
+                            {this.renderColorPicker(FONT_COLORLIST)}
+                        </div>
                     </div>
 
                     <div className={styles['setting-item']}>
@@ -93,12 +102,36 @@ class Settings extends React.Component<any, any> {
                             <a className={styles['hide-btn']} onClick={this.handleAppHide}>
                                 最小托盘
                             </a>
-
-                            <Checkbox onChange={this.openAtLoginChange}>开机启动</Checkbox>
+                            <Checkbox checked={config.openAtLogin} onChange={this.openAtLoginChange}>
+                                开机启动
+                            </Checkbox>
                         </div>
                     </div>
                 </div>
             </div>
+        )
+    }
+
+    renderColorPicker = (colorList: Array<string>) => {
+        const { config } = this.state
+
+        const content = (
+            <div className={styles['color-panel']}>
+                {colorList.map((color: string) => (
+                    <div key={color} className={styles['color-item']} style={{ backgroundColor: color }}></div>
+                ))}
+            </div>
+        )
+
+        return (
+            <Popover
+                content={content}
+                overlayClassName={styles['color-picker-popover']}
+                trigger="click"
+                placement="topLeft"
+            >
+                <div className={styles['color-picker']} style={{ background: config.background }}></div>
+            </Popover>
         )
     }
 
@@ -124,16 +157,42 @@ class Settings extends React.Component<any, any> {
     }
 
     handleLayerSettingChange = (value: any) => {
-        ipcRenderer.send('window-always-on-top', value.includes('top'))
-        ipcRenderer.send('window-size-lock', !value.includes('size'))
-        ipcRenderer.send('window-position-lock', !value.includes('move'))
+        const movable = !value.includes('moveLock')
+        const resizable = !value.includes('sizeLock')
+        const alwaysOnTop = value.includes('alwaysOnTop')
+
+        this.setState(
+            {
+                config: Object.assign({}, this.state.config, {
+                    moveLock: !movable,
+                    sizeLock: !resizable
+                })
+            },
+            () => {
+                this.updateConfig({
+                    movable,
+                    resizable,
+                    alwaysOnTop
+                })
+            }
+        )
     }
 
-    openAtLoginChange = (value: any) => {
-        console.log(value)
+    handleThemeChange = (e: any) => {
+        cssVarUpdate(e.target.value)
+        this.updateConfig({ theme: e.target.value })
+    }
 
-        document.documentElement.style.setProperty('--primary-bgcolor', '#ff3232')
-        ipcRenderer.send('config-update', { a: 1 })
+    openAtLoginChange = () => {
+        const { config } = this.state
+        this.updateConfig({ openAtLogin: !config.openAtLogin })
+    }
+
+    updateConfig = (updateDatas: any) => {
+        this.setState({
+            config: Object.assign({}, this.state.config, updateDatas)
+        })
+        ipcRenderer.send('config-update', updateDatas)
     }
 }
 
