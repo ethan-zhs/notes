@@ -1,8 +1,9 @@
 import fs from 'fs-extra'
 import path from 'path'
+import os from 'os'
 
 function getBaseDir() {
-    const basePath = process.env.HOME || ''
+    const basePath = os.homedir() || ''
     const baseDir = path.join(basePath, '.simple-notes')
     return baseDir
 }
