@@ -1,17 +1,19 @@
 {
   "name": "notes",
   "version": "1.0.0",
-  "description": "electron react project",
+  "description": "simple notes",
   "main": "./dist/main/main.js",
   "scripts": {
     "start": "set NODE_ENV=development&&node .electron/dev-runner.js",
     "start:prod": "npm run build && electron .",
     "build": "rimraf dist && set NODE_ENV=production&&node .electron/build.js",
+    "pack:dir": "rimraf build && electron-builder --dir",
     "pack": "rimraf build && electron-builder"
   },
   "keywords": [
     "electron",
-    "react"
+    "react",
+    "notes"
   ],
   "author": "ethan-zhs",
   "license": "ISC",

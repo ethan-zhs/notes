@@ -27,7 +27,7 @@ export default function createTray() {
         }
     ])
     // 设置最小托盘tips
-    tray.setToolTip('react-electron')
+    tray.setToolTip('simple notes')
 
     // 设置最小托盘右键菜单
     tray.setContextMenu(contextMenu)

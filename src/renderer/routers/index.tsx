@@ -25,7 +25,7 @@ export default class Routes extends React.Component<any, any> {
                         )
                     })}
                     {/* 打包到生产是从*.html开始访问的,用"/"做默认重定向路由会不生效 */}
-                    <Route path="*" exact={true} render={() => <Redirect to={'/home'} />} />
+                    <Route path="*" exact={true} render={() => <Redirect to={'/notes'} />} />
                 </Switch>
             </HashRouter>
         )

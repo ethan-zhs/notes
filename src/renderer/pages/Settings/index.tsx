@@ -1,8 +1,9 @@
 import * as React from 'react'
+import classNames from 'classnames'
 import { remote, ipcRenderer } from 'electron'
 import { Radio, Checkbox, Popover } from 'antd'
 
-import { cssVarUpdate } from '../../utils/css'
+import { themeUpdate, personalThemeUpdate } from '../../utils/css'
 import { BACKGROUND_COLORLIST, FONT_COLORLIST } from '../../constants/color'
 
 const styles = require('./index.less')
@@ -18,7 +19,8 @@ class Settings extends React.Component<any, any> {
 
     componentDidMount() {
         const config = ipcRenderer.sendSync('get-config')
-        cssVarUpdate(config.theme)
+        themeUpdate(config)
+
         this.setState({
             config: Object.assign({}, config, {
                 moveLock: !config.movable,
@@ -33,8 +35,8 @@ class Settings extends React.Component<any, any> {
         const layerSettingsValue = ['moveLock', 'sizeLock', 'alwaysOnTop'].filter(key => config[key])
 
         return (
-            <div>
-                <header className={styles['drag-header']}></header>
+            <div className={styles['settings']}>
+                <header className={styles['drag-header']} onDoubleClick={e => e.preventDefault()}></header>
                 <div className={styles['header']}>
                     <div className={styles['title']}>Settings</div>
 
@@ -81,17 +83,19 @@ class Settings extends React.Component<any, any> {
                         </Radio.Group>
                     </div>
 
-                    <div className={styles['setting-item']}>
-                        <label>自定义主题</label>
-                        <div className={styles['personal-theme-item']}>
-                            <span>背景</span>
-                            {this.renderColorPicker(BACKGROUND_COLORLIST)}
+                    {config.theme === 'THEME_PERSONAL' && (
+                        <div className={styles['setting-item']}>
+                            <label>自定义主题</label>
+                            <div className={styles['personal-theme-item']}>
+                                <span>背景</span>
+                                {this.renderColorPicker('background', BACKGROUND_COLORLIST)}
+                            </div>
+                            <div className={styles['personal-theme-item']}>
+                                <span>字体</span>
+                                {this.renderColorPicker('color', FONT_COLORLIST)}
+                            </div>
                         </div>
-                        <div className={styles['personal-theme-item']}>
-                            <span>字体</span>
-                            {this.renderColorPicker(FONT_COLORLIST)}
-                        </div>
-                    </div>
+                    )}
 
                     <div className={styles['setting-item']}>
                         <label>程序设置</label>
@@ -112,25 +116,30 @@ class Settings extends React.Component<any, any> {
         )
     }
 
-    renderColorPicker = (colorList: Array<string>) => {
+    renderColorPicker = (type: string, colorList: Array<string>) => {
         const { config } = this.state
+
+        const currentColor = type === 'background' ? config.background : config.color
 
         const content = (
             <div className={styles['color-panel']}>
                 {colorList.map((color: string) => (
-                    <div key={color} className={styles['color-item']} style={{ backgroundColor: color }}></div>
+                    <div
+                        key={color}
+                        className={classNames({
+                            [styles['color-item']]: true,
+                            [styles['color-item-active']]: currentColor === color
+                        })}
+                        style={{ backgroundColor: color }}
+                        onClick={() => this.handlePersonalThemeChange(type, color)}
+                    ></div>
                 ))}
             </div>
         )
 
         return (
-            <Popover
-                content={content}
-                overlayClassName={styles['color-picker-popover']}
-                trigger="click"
-                placement="topLeft"
-            >
-                <div className={styles['color-picker']} style={{ background: config.background }}></div>
+            <Popover content={content} overlayClassName={styles['color-picker-popover']} placement="topLeft">
+                <div className={styles['color-picker']} style={{ background: currentColor }}></div>
             </Popover>
         )
     }
@@ -178,9 +187,23 @@ class Settings extends React.Component<any, any> {
         )
     }
 
-    handleThemeChange = (e: any) => {
-        cssVarUpdate(e.target.value)
-        this.updateConfig({ theme: e.target.value })
+    handlePersonalThemeChange = async (type: string, color: string) => {
+        const updateDatas: any = {}
+        updateDatas[type] = color
+
+        await this.updateConfig(updateDatas)
+
+        personalThemeUpdate({
+            background: this.state.config.background,
+            color: this.state.config.color
+        })
+    }
+
+    handleThemeChange = async (e: any) => {
+        const themeType = e.target.value
+
+        await this.updateConfig({ theme: themeType })
+        themeUpdate(this.state.config)
     }
 
     openAtLoginChange = () => {
@@ -188,8 +211,8 @@ class Settings extends React.Component<any, any> {
         this.updateConfig({ openAtLogin: !config.openAtLogin })
     }
 
-    updateConfig = (updateDatas: any) => {
-        this.setState({
+    updateConfig = async (updateDatas: any) => {
+        await this.setState({
             config: Object.assign({}, this.state.config, updateDatas)
         })
         ipcRenderer.send('config-update', updateDatas)

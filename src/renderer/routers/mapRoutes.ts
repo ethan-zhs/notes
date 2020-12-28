@@ -1,5 +1,5 @@
 import Settings from '@renderer/pages/Settings'
-import Home from '@renderer/pages/Home'
+import Notes from '@src/renderer/pages/Notes'
 
 export interface IRoutesProps {
     /**
@@ -37,10 +37,10 @@ const routes: IRoutesProps[] = [
         key: 'settings'
     },
     {
-        path: '/home',
+        path: '/notes',
         exact: true,
-        component: Home,
-        key: 'home'
+        component: Notes,
+        key: 'notes'
     }
 ]
 

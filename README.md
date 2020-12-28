@@ -1,6 +1,6 @@
-# React Electron Demo
+# Simple Notes
 
-✨🚀一个简单的`react`结合`electron`开发的demo程序 
+✨🚀一个简单的`react`结合`electron`开发的便签应用程序 
 
 ## Usage
 ```bash

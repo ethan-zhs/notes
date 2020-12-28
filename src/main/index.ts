@@ -1,7 +1,6 @@
 import path from 'path'
 import url from 'url'
-import { app, BrowserWindow, Menu } from 'electron'
-import template from './menu/template'
+import { app, BrowserWindow } from 'electron'
 import handleMessage from './event/message'
 import handleQuit from './event/quit'
 import createTray from './protect/tray'
@@ -40,6 +39,7 @@ function createWindow() {
         movable: config.movable,
         alwaysOnTop: config.alwaysOnTop,
         transparent: true,
+        maximizable: false,
         frame: false,
         webPreferences: {
             nodeIntegration: true, // 允许使用node API
@@ -48,20 +48,21 @@ function createWindow() {
         }
     })
 
-    const RENDERER_URL =
-        process.env.NODE_ENV === 'production'
-            ? url.format({
-                  pathname: path.join(__dirname, '..', 'renderer/index.html'),
-                  protocol: 'file:',
-                  slashes: true
-              })
-            : 'http://localhost:1234'
+    const isProd = process.env.NODE_ENV === 'production'
+
+    const RENDERER_URL = isProd
+        ? url.format({
+              pathname: path.join(__dirname, '..', 'renderer/index.html'),
+              protocol: 'file:',
+              slashes: true
+          })
+        : 'http://localhost:1234'
 
     // 为你的应用加载index.html
     win.loadURL(RENDERER_URL)
 
-    // 打开开发者工具
-    win.webContents.openDevTools()
+    // 开发环境打开开发者工具
+    !isProd && win.webContents.openDevTools()
 
     // 奔溃 reload window 失败，重新加载 Web URL
     win.webContents.on('did-fail-load', () => {
@@ -71,12 +72,11 @@ function createWindow() {
 
     global.mainId = win.id
     global.__dirname = path.join(__dirname, '../../')
-    global.myField = { name: '自定义内容 😁🎉' }
 }
 
 // 设置App User ModalId, id与package.json的appId一致
 // 只有在windows安装应用程序时, App User ModalId 才会注入到系统中，这时windows才能使用Notification功能
-app.setAppUserModelId('com.electrondemo.app')
+app.setAppUserModelId('com.simplenotes.app')
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -98,11 +98,8 @@ app.on('activate', () => {
 // Electron会在初始化完成并且准备好创建浏览器窗口时调用这个方法
 // 部分 API 在 ready 事件触发后才能使用。
 app.on('ready', () => {
+    // 创建主窗口
     createWindow()
-
-    // 定义menu
-    const menu = Menu.buildFromTemplate(template)
-    Menu.setApplicationMenu(menu)
 
     // 定义全局快捷键
     initGlobalShortcut()
@@ -110,8 +107,13 @@ app.on('ready', () => {
     // 缩小为最小托盘
     createTray()
 
+    // 建立主进程和渲染进程的通信机制
     handleMessage()
+
+    // 检测程序奔溃，启动保护程序
     handleCrashed()
+
+    // 退出程序
     handleQuit()
 })
 

@@ -1,5 +1,4 @@
-import handleWindowMessage from './windows'
-import { BrowserWindow, ipcMain } from 'electron'
+import { BrowserWindow, ipcMain, app } from 'electron'
 import * as Api from '../api/local'
 
 // 隐藏主程序窗口
@@ -22,9 +21,21 @@ function configUpdate(win: any) {
         let config = Api.getConfig() || {}
         config = Object.assign(config, conf)
 
+        // 设置窗口可改变大小
         win.resizable = config.resizable
+
+        // 设置窗口可移动
         win.movable = config.movable
+
+        // 设置窗口置顶
         win.setAlwaysOnTop(config.alwaysOnTop)
+
+        // 设置开机自启动
+        if (app.getLoginItemSettings().openAtLogin !== config.openAtLogin) {
+            app.setLoginItemSettings({
+                openAtLogin: config.openAtLogin
+            })
+        }
 
         Api.updateConfig(config)
         win.webContents.send('config-update', config)
@@ -55,41 +66,6 @@ function getConfig() {
     })
 }
 
-function getSyncMsg() {
-    ipcMain.on('sync-render', (event, data) => {
-        console.log(data)
-        event.returnValue = '主进程收到了渲染进程的【同步】消息！'
-    })
-}
-
-function getAsyncMsg() {
-    ipcMain.on('async-render', (event, data) => {
-        console.log(data)
-        event.sender.send('main-msg', '主进程收到了渲染进程的【异步】消息！')
-    })
-}
-
-function sendMsgContinuous() {
-    let i = 0
-    let sendMsg = false
-    const mainWindow = BrowserWindow.fromId(global.mainId)
-    ipcMain.on('start-send', () => {
-        console.log('开始定时向渲染进程发送消息！')
-        sendMsg = true
-    })
-
-    ipcMain.on('end-send', () => {
-        console.log('结束向渲染进程发送消息！')
-        sendMsg = false
-    })
-
-    setInterval(() => {
-        if (sendMsg) {
-            mainWindow.webContents.send('main-msg', `Message【${i++}】`)
-        }
-    }, 200)
-}
-
 export default function handleMessage() {
     const mainWindow = BrowserWindow.fromId(global.mainId)
     windowHide(mainWindow)
@@ -98,8 +74,4 @@ export default function handleMessage() {
     notesUpdate(mainWindow)
     getNotes()
     getConfig()
-    getSyncMsg()
-    getAsyncMsg()
-    sendMsgContinuous()
-    handleWindowMessage()
 }

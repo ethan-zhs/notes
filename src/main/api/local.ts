@@ -1,14 +1,26 @@
 import fs from 'fs-extra'
 import path from 'path'
-import { app } from 'electron'
+
+function getBaseDir() {
+    const basePath = process.env.HOME || ''
+    const baseDir = path.join(basePath, '.simple-notes')
+    return baseDir
+}
 
 export function updateConfig(data: any) {
-    fs.writeJSONSync(path.join(app.getAppPath(), './settings-config.json'), data)
+    const baseDir = getBaseDir()
+
+    if (!fs.pathExistsSync(baseDir)) {
+        fs.mkdir(baseDir)
+    }
+
+    fs.writeJSONSync(path.join(baseDir, 'settings-config.json'), data)
     return data
 }
 
 export function getConfig() {
-    const configPath = path.join(app.getAppPath(), './settings-config.json')
+    const baseDir = getBaseDir()
+    const configPath = path.join(baseDir, 'settings-config.json')
 
     if (fs.pathExistsSync(configPath)) {
         return fs.readJSONSync(configPath)
@@ -16,12 +28,18 @@ export function getConfig() {
 }
 
 export function updateNotes(data: any) {
-    fs.writeJSONSync(path.join(app.getAppPath(), './notes-data.json'), data)
+    const baseDir = getBaseDir()
+    if (!fs.pathExistsSync(baseDir)) {
+        fs.mkdir(baseDir)
+    }
+
+    fs.writeJSONSync(path.join(baseDir, 'notes-data.json'), data)
     return data
 }
 
 export function getNotes() {
-    const notesPath = path.join(app.getAppPath(), './notes-data.json')
+    const baseDir = getBaseDir()
+    const notesPath = path.join(baseDir, 'notes-data.json')
 
     if (fs.pathExistsSync(notesPath)) {
         return fs.readJSONSync(notesPath)

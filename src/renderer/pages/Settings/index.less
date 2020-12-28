@@ -1,107 +1,108 @@
-.drag-header {
-    height: 15px;
-    -webkit-user-select: none;
-    -webkit-app-region: drag;
-    cursor: pointer;
-}
-
-.header {    
-    font-size: 12px;
-    padding: 0px 20px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    user-select: none;
-
-    .title {
-        font-size: 18px;
-        font-weight: bold;
-        flex: 1;
-        color: var(--primary-fontcolor);
+.settings {
+    .drag-header {
+        height: 15px;
+        -webkit-user-select: none;
+        -webkit-app-region: drag;
+        cursor: pointer;   
     }
 
-    .smallest-btn,
-    .close-btn {
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-        margin-left: 10px;
-    
-        .svg-icon {
-            fill: var(--primary-fontcolor);
-        }
-    }
-} 
-
-
-
-.setting-panel {
-   color: var(--primary-fontcolor);
-   padding: 30px 30px 0 30px;
-
-    .setting-item {
-        margin-bottom: 15px;
+    .header {    
+        font-size: 12px;
+        padding: 0px 20px;
+        height: 30px;
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        user-select: none;
 
-        label {
-            width: 90px;
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            flex: 1;
+            color: var(--primary-fontcolor);
         }
 
-        .personal-theme-item {
-            display: flex;
-            align-items: center;
-            margin-right: 20px;
-
-            .color-picker {
-                width: 15px;
-                height: 15px;
-                margin-left: 8px;
-                cursor: pointer;
-                border: 1px solid #aaa
+        .smallest-btn,
+        .close-btn {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin-left: 10px;
+        
+            .svg-icon {
+                fill: var(--primary-fontcolor);
             }
         }
+    } 
 
-        .app-setting {
+    .setting-panel {
+        color: var(--primary-fontcolor);
+        padding: 30px 30px 0 30px;
+     
+        .setting-item {
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
-
-            .quit-btn {
-                color: #fff;
-                background: #ff4b4b;           
+     
+            label {
+                width: 90px;
             }
-    
-            .hide-btn {
-                color: #fff;
-                background: #c7990f;
-            }
-    
-            .quit-btn,
-            .hide-btn {
-                padding: 3px 18px;
-                border-radius: 2px;
+     
+            .personal-theme-item {
+                display: flex;
+                align-items: center;
                 margin-right: 20px;
-                opacity: 1;
-                transition: opacity .3s;
-
-                &:hover {
-                    opacity: 0.8;
+    
+                .color-picker {
+                    width: 15px;
+                    height: 15px;
+                    margin-left: 8px;
+                    cursor: pointer;
+                    border: 1px solid rgba(0, 0, 0, 0.6);
                 }
             }
-        }   
+     
+            .app-setting {
+                display: flex;
+                align-items: center;
+    
+                .quit-btn {
+                    color: #fff;
+                    background: #ff4b4b;           
+                }
         
-        :global {
-            .ant-checkbox-wrapper {
-                color: var(--primary-fontcolor);
-            }
-
-            .ant-radio-wrapper {
-                color: var(--primary-fontcolor);
+                .hide-btn {
+                    color: #fff;
+                    background: #c7990f;
+                }
+        
+                .quit-btn,
+                .hide-btn {
+                    padding: 3px 18px;
+                    border-radius: 2px;
+                    margin-right: 20px;
+                    opacity: 1;
+                    transition: opacity .3s;
+    
+                    &:hover {
+                        opacity: 0.8;
+                    }
+                }
+            }   
+             
+            :global {
+                .ant-checkbox-wrapper {
+                    color: var(--primary-fontcolor);
+                }
+    
+                .ant-radio-wrapper {
+                    color: var(--primary-fontcolor);
+                }
             }
         }
-   }
+     }
 }
+
 
 .color-picker-popover {
     :global {
@@ -125,6 +126,7 @@
     width: 210px;
     height: 90px;
     display: flex;
+    flex-direction: column;
     flex-wrap: wrap;
 
     .color-item {
@@ -132,9 +134,9 @@
         height: 15px;
         cursor: pointer;
 
+        &.color-item-active,
         &:hover {
             border: 1px solid #fff;
-        }
-        
+        }        
     }
 }

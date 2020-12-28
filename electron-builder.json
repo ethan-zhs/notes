@@ -1,6 +1,6 @@
 {
-    "productName": "electron-test",
-    "appId": "com.electrondemo.app",
+    "productName": "simple notes",
+    "appId": "com.simplenotes.app",
     "copyright": "Copyright © 2020 zhuhuishao",
     "asar": true,
     "compression": "maximum",

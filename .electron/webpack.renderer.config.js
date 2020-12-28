@@ -74,13 +74,15 @@ module.exports = {
                         loader: 'less-loader',
                         options: {
                             lessOptions: {
-                                modifyVars: resolve('src/renderer/statics/theme/antd_modifyvars.js'),
+                                modifyVars: {
+                                    'primary-color': '#c7990f'
+                                },
                                 javascriptEnabled: true
                             }
                         }
                     }
                 ],
-                include: resolve('node_modules/antd/lib')
+                include: resolve('node_modules/antd')
             },
             {
                 test: /\.(jpe?g|png|ico|gif|woff|woff2|eot|ttf|otf|svg|swf)$/,

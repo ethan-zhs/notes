@@ -69,13 +69,22 @@
         overflow-x: hidden;
     
         .note-item {
+            position: relative;
             min-height: 45px;
             margin: 0 20px;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255,255,255,.2);
+            padding: 10px 0;           
             display: flex;
             align-items: center;
             cursor: pointer;
+
+            &::after {
+                content: '';
+                position: absolute;
+                border-bottom: 1px solid var(--primary-fontcolor);
+                opacity: 0.2;
+                bottom: 0;
+                width: 100%;
+            }
     
             .note-detail {
                 width: 100%;
@@ -101,7 +110,28 @@
                         opacity: 0.8;
                     }
                 }
+
+                .delete-btn {
+                    opacity: 0.5;
+
+                    &:hover {
+                        opacity: 1;
+                    }
+                }
             }
+        }
+
+        .no-data {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-fontcolor);
+            opacity: 0.2;
+            padding-bottom: 30px;
+            font-weight: bold;
+            font-size: 18px;
         }
     }
     

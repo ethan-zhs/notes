@@ -5,9 +5,9 @@ import { BrowserWindow, crashReporter, dialog, app } from 'electron'
 
 // 开启进程崩溃记录
 crashReporter.start({
-    productName: 'react-electron',
+    productName: 'simple notes',
     compress: true,
-    companyName: 'zhuhuishao',
+    companyName: 'Bansell',
     submitURL: 'http://xxx.com', // 上传崩溃日志的接口
     uploadToServer: false
 })

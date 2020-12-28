@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import { remote, ipcRenderer } from 'electron'
 
 import TextInput from './TextInput'
-import { cssVarUpdate } from '../../utils/css'
+import { themeUpdate } from '../../utils/css'
 
 const styles = require('./index.less')
 
@@ -20,89 +20,23 @@ class Home extends React.Component<any, any> {
             isCreating: false,
             activeNoteId: '',
             hoverNoteId: '',
-            noteList: [
-                {
-                    id: '11',
-                    content: '111asdasasdasfffa韶大啊实打实v啊实打实阿三大苏打啊大苏打11',
-                    noteStatus: 'Todo',
-                    updateTime: ''
-                },
-                {
-                    id: '22',
-                    content: '22222',
-                    noteStatus: 'Done',
-                    updateTime: ''
-                },
-                {
-                    id: '33',
-                    content: '22222',
-                    noteStatus: 'Done',
-                    updateTime: ''
-                },
-                {
-                    id: '44',
-                    content: '22222',
-                    noteStatus: 'Done',
-                    updateTime: ''
-                },
-                {
-                    id: '55',
-                    content: '22222',
-                    noteStatus: 'Done',
-                    updateTime: ''
-                },
-                {
-                    id: '66',
-                    content: '22222',
-                    noteStatus: 'Done',
-                    updateTime: ''
-                },
-                {
-                    id: '77',
-                    content: '22222',
-                    noteStatus: 'Done',
-                    updateTime: ''
-                },
-                {
-                    id: '88',
-                    content: '22222',
-                    noteStatus: 'Done',
-                    updateTime: ''
-                },
-                {
-                    id: '99',
-                    content: '22222',
-                    noteStatus: 'Done',
-                    updateTime: ''
-                },
-                {
-                    id: '1010',
-                    content: '88888',
-                    noteStatus: 'Done',
-                    updateTime: ''
-                },
-                {
-                    id: '1111',
-                    content: '88888',
-                    noteStatus: 'Done',
-                    updateTime: ''
-                },
-                {
-                    id: '1212',
-                    content: '88888',
-                    noteStatus: 'Done',
-                    updateTime: ''
-                }
-            ]
+            noteList: []
         }
     }
 
     componentDidMount() {
         const config = ipcRenderer.sendSync('get-config')
-        cssVarUpdate(config.theme)
+        const notes = ipcRenderer.sendSync('get-notes')
 
+        // 初始化notes
+        this.setState({ noteList: notes || [] })
+
+        // 初始化主题
+        themeUpdate(config)
+
+        // 监听配置变化更改主题
         ipcRenderer.on('config-update', (event, conf) => {
-            cssVarUpdate(conf.theme)
+            themeUpdate(conf)
         })
     }
 
@@ -183,7 +117,12 @@ class Home extends React.Component<any, any> {
                                             viewBox="-180 0 700 370"
                                             onClick={e => this.deleteNote(e, item.id)}
                                         >
-                                            <g className={styles['svg-icon']}>
+                                            <g
+                                                className={classNames({
+                                                    [styles['svg-icon']]: true,
+                                                    [styles['delete-btn']]: true
+                                                })}
+                                            >
                                                 <polygon points="357,35.7 321.3,0 178.5,142.8 35.7,0 0,35.7 142.8,178.5 0,321.3 35.7,357 178.5,214.2 321.3,357 357,321.3 214.2,178.5" />
                                             </g>
                                         </svg>
@@ -191,6 +130,8 @@ class Home extends React.Component<any, any> {
                                 </div>
                             </div>
                         ))}
+
+                        {currentNoteList.length <= 0 && <div className={styles['no-data']}>No Notes</div>}
                     </div>
                 )}
             </div>
@@ -206,12 +147,11 @@ class Home extends React.Component<any, any> {
     openSettingsDialog = () => {
         const { settingWin } = this.state
 
+        const isProd = process.env.NODE_ENV === 'production'
+
         // 只能初始化一个settings win
         if (!settingWin) {
-            const SETTINGS_URL =
-                process.env.NODE_ENV === 'production'
-                    ? `file://${__dirname}/index.html#/settings`
-                    : 'http://localhost:1234/#settings'
+            const SETTINGS_URL = isProd ? `file://${__dirname}/index.html#/settings` : 'http://localhost:1234/#settings'
 
             const BrowserWindow = remote.BrowserWindow
             const win = new BrowserWindow({
@@ -219,6 +159,7 @@ class Home extends React.Component<any, any> {
                 width: 500,
                 transparent: true,
                 frame: false,
+                maximizable: false,
                 webPreferences: {
                     nodeIntegration: true,
                     enableRemoteModule: true
@@ -226,7 +167,10 @@ class Home extends React.Component<any, any> {
             })
             win.loadURL(SETTINGS_URL)
 
-            win.webContents.openDevTools()
+            // 非生产环境启动开发者工具
+            if (!isProd) {
+                win.webContents.openDevTools()
+            }
 
             win.on('close', event => {
                 event.preventDefault()
@@ -276,7 +220,7 @@ class Home extends React.Component<any, any> {
             noteListTemp.unshift(newNote)
         }
 
-        this.setState({ noteList: noteListTemp, isCreating: false })
+        this.handleNotesUpdate(noteListTemp)
     }
 
     uppdateNote = (value: string) => {
@@ -291,7 +235,7 @@ class Home extends React.Component<any, any> {
             }
         })
 
-        this.setState({ noteList: noteListTemp, activeNoteId: '' })
+        this.handleNotesUpdate(noteListTemp)
     }
 
     changeHoverNote = (noteId: string | number) => {
@@ -304,7 +248,7 @@ class Home extends React.Component<any, any> {
 
         let noteListTemp = fromJS(noteList).toJS()
         noteListTemp = noteListTemp.filter((item: any) => noteId !== item.id)
-        this.setState({ noteList: noteListTemp })
+        this.handleNotesUpdate(noteListTemp)
     }
 
     changeNoteStatus = (noteId: string | number) => {
@@ -321,7 +265,17 @@ class Home extends React.Component<any, any> {
             }
         })
 
-        this.setState({ noteList: noteListTemp, activeNoteId: '', hoverNoteId: '' })
+        this.handleNotesUpdate(noteListTemp)
+    }
+
+    handleNotesUpdate = (noteList: any) => {
+        this.setState({
+            noteList,
+            activeNoteId: '',
+            hoverNoteId: '',
+            isCreating: false
+        })
+        ipcRenderer.send('notes-update', noteList)
     }
 }
 
